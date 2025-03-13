@@ -48,10 +48,9 @@ func headers(next http.Handler) http.Handler {
 	})
 }
 
-func (a *App) insertCourse(c Course) error {
-	err := a.db.InsertCourse(c)
-	return err
-
+func (a *App) insertCourse(c Course) (int, error) {
+	id, err := a.db.InsertCourse(c)
+	return id, err
 }
 
 func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
@@ -63,12 +62,15 @@ func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
 			return
 		}
 
-		err = a.insertCourse(c)
+		id, err := a.insertCourse(c)
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		json.NewEncoder(writer).Encode("Success")
+		c.Id = &id
+		writer.WriteHeader(201)
+		json.NewEncoder(writer).Encode(map[string]Course{
+			"data": c,
+		})
 	}
 }
