@@ -7,7 +7,7 @@ import (
 )
 
 type DataBaseService interface {
-	CreateCourse() int
+	InsertCourse(c Course) error
 }
 
 type PostgresService struct {
@@ -28,4 +28,10 @@ func NewDB(dbDriver string, dbSource string) DataBaseService {
 		return &PostgresService{DB: newDb}
 	}
 	return nil
+}
+
+func (self *PostgresService) InsertCourse(c Course) error {
+	query := "INSERT INTO courses (title, description) VALUES($1, $2);"
+	_, err := self.Exec(query, c.Title, c.Description)
+	return err
 }

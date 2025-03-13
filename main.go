@@ -9,6 +9,6 @@ func main() {
 	a.Initialize(
 		"postgres",
 		"1234",
-		"guita")
-	a.Run("8000")
+		"ingsoft2")
+	a.Run("localhost:8000")
 }
