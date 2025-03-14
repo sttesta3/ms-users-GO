@@ -36,6 +36,7 @@ func (a *App) Run(s string) {
 func (a *App) initializeRoutes() {
 	a.Router.Use(headers)
 	a.Router.HandleFunc("/courses", a.CreateCourse).Methods("POST")
+	a.Router.HandleFunc("/courses", a.GetCourses).Methods("GET")
 }
 
 func headers(next http.Handler) http.Handler {
@@ -51,6 +52,10 @@ func headers(next http.Handler) http.Handler {
 func (a *App) insertCourse(c Course) (int, error) {
 	id, err := a.Db.InsertCourse(c)
 	return id, err
+}
+
+func (a *App) getCourses() ([]Course, error) {
+	return a.Db.GetCourses()
 }
 
 func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
@@ -84,6 +89,20 @@ func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(201)
 		json.NewEncoder(writer).Encode(map[string]Course{
 			"data": c,
+		})
+	}
+}
+
+func (a *App) GetCourses(writer http.ResponseWriter, request *http.Request) {
+	if request.Method == http.MethodGet {
+		courses, err := a.getCourses()
+		if err != nil {
+			http.Error(writer, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writer.WriteHeader(200)
+		json.NewEncoder(writer).Encode(map[string][]Course{
+			"data": courses,
 		})
 	}
 }

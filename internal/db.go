@@ -2,12 +2,14 @@ package internal
 
 import (
 	"database/sql"
+	"log"
 
 	_ "github.com/lib/pq"
 )
 
 type DataBaseService interface {
 	InsertCourse(c Course) (int, error)
+	GetCourses() ([]Course, error)
 }
 
 type PostgresService struct {
@@ -38,4 +40,21 @@ func (self *PostgresService) InsertCourse(c Course) (int, error) {
 	var id int
 	row.Scan(&id)
 	return id, err
+}
+
+func (self *PostgresService) GetCourses() ([]Course, error) {
+	query := "SELECT * FROM courses"
+	rows, err := self.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	courses := make([]Course, 0)
+	for rows.Next() {
+		var course Course
+		if err := rows.Scan(&course.Id, &course.Title, &course.Description); err != nil {
+			log.Fatal(err)
+		}
+		courses = append(courses, course)
+	}
+	return courses, nil
 }
