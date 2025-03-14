@@ -11,7 +11,7 @@ import (
 
 type App struct {
 	Router *mux.Router
-	db     DataBaseService
+	Db     DataBaseService
 }
 
 func (a *App) Initialize(user string, password string, dbname string) {
@@ -21,7 +21,7 @@ func (a *App) Initialize(user string, password string, dbname string) {
 		password,
 		dbname,
 	)
-	a.db = NewDB("postgres", connectionString)
+	a.Db = NewDB("postgres", connectionString)
 
 	a.Router = mux.NewRouter()
 
@@ -49,7 +49,7 @@ func headers(next http.Handler) http.Handler {
 }
 
 func (a *App) insertCourse(c Course) (int, error) {
-	id, err := a.db.InsertCourse(c)
+	id, err := a.Db.InsertCourse(c)
 	return id, err
 }
 
@@ -57,6 +57,19 @@ func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == http.MethodPost {
 		var c Course
 		err := json.NewDecoder(request.Body).Decode(&c)
+		if c.Title == "" || c.Description == "" {
+
+			writer.WriteHeader(400)
+			errResponse := ErrorResponse{
+				Status:      400,
+				Title:       "No se indicó la información adecuada.",
+				Description: "No se especificó un título o descripción para el curso.",
+			}
+			json.NewEncoder(writer).Encode(errResponse)
+			return
+
+		}
+
 		if err != nil {
 			http.Error(writer, err.Error(), http.StatusInternalServerError)
 			return
