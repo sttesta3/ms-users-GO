@@ -15,6 +15,10 @@ func (mockDb *MockDB) InsertCourse(c internal.Course) (int, error) {
 	return 1, nil
 }
 
+func (mockDb *MockDB) GetCourses() ([]internal.Course, error) {
+	return make([]internal.Course, 0), nil
+}
+
 func TestPostCoursesOK(t *testing.T) {
 	course := internal.Course{
 		Title:       "a",
@@ -54,6 +58,24 @@ func TestPostCoursesSinInformacion(t *testing.T) {
 
 	app.CreateCourse(w, r)
 	if w.Code != 400 {
+		t.Errorf("Result was incorrect")
+	}
+}
+
+func TestGetCourses(t *testing.T) {
+	app := internal.App{}
+	app.Initialize(
+		"postgres",
+		"1234",
+		"ingsoft2")
+
+	app.Db = &MockDB{}
+
+	r, _ := http.NewRequest("GET", "/courses", nil)
+	w := httptest.NewRecorder()
+
+	app.GetCourses(w, r)
+	if w.Code != 200 {
 		t.Errorf("Result was incorrect")
 	}
 }
