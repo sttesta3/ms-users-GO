@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -37,6 +38,17 @@ func (a *App) initializeRoutes() {
 	a.Router.Use(headers)
 	a.Router.HandleFunc("/courses", a.CreateCourse).Methods("POST")
 	a.Router.HandleFunc("/courses", a.GetCourses).Methods("GET")
+	a.Router.HandleFunc("/courses/{id}", a.GetCourse).Methods("GET")
+}
+
+func (a *App) internalServerError(writer http.ResponseWriter) {
+	writer.WriteHeader(500)
+	errResponse := ErrorResponse{
+		Status: 500,
+		Title:  "Internal server error",
+	}
+	json.NewEncoder(writer).Encode(errResponse)
+	return
 }
 
 func headers(next http.Handler) http.Handler {
@@ -50,12 +62,15 @@ func headers(next http.Handler) http.Handler {
 }
 
 func (a *App) insertCourse(c Course) (int, error) {
-	id, err := a.Db.InsertCourse(c)
-	return id, err
+	return a.Db.InsertCourse(c)
 }
 
 func (a *App) getCourses() ([]Course, error) {
 	return a.Db.GetCourses()
+}
+
+func (a *App) getCourse(id int) (Course, error) {
+	return a.Db.GetCourse(id)
 }
 
 func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
@@ -103,6 +118,32 @@ func (a *App) GetCourses(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(200)
 		json.NewEncoder(writer).Encode(map[string][]Course{
 			"data": courses,
+		})
+	}
+}
+
+func (a *App) GetCourse(writer http.ResponseWriter, request *http.Request) {
+	if request.Method == http.MethodGet {
+		courseIdStr := mux.Vars(request)["id"]
+		fmt.Println("Course id Str: ", courseIdStr)
+		courseId, err := strconv.Atoi(courseIdStr)
+		if err != nil {
+			http.Error(writer, err.Error(), 400)
+			return
+		}
+		course, err := a.getCourse(courseId)
+		if err != nil {
+			errResponse := ErrorResponse{
+				Status:      404,
+				Title:       "Course not found",
+				Description: "No se encontró el curso especificado",
+			}
+			json.NewEncoder(writer).Encode(errResponse)
+			return
+		}
+		writer.WriteHeader(200)
+		json.NewEncoder(writer).Encode(map[string]Course{
+			"data": course,
 		})
 	}
 }

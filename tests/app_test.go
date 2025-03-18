@@ -3,10 +3,13 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"ing2-tp1/internal"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/gorilla/mux"
 )
 
 type MockDB struct{}
@@ -17,6 +20,13 @@ func (mockDb *MockDB) InsertCourse(c internal.Course) (int, error) {
 
 func (mockDb *MockDB) GetCourses() ([]internal.Course, error) {
 	return make([]internal.Course, 0), nil
+}
+
+func (mockDb *MockDB) GetCourse(num int) (internal.Course, error) {
+	if num == 100 {
+		return internal.Course{}, fmt.Errorf("error")
+	}
+	return internal.Course{}, nil
 }
 
 func TestPostCoursesOK(t *testing.T) {
@@ -76,6 +86,54 @@ func TestGetCourses(t *testing.T) {
 
 	app.GetCourses(w, r)
 	if w.Code != 200 {
+		t.Errorf("Result was incorrect")
+	}
+}
+
+func TestGetCourse(t *testing.T) {
+	app := internal.App{}
+	app.Initialize(
+		"postgres",
+		"1234",
+		"ingsoft2")
+
+	app.Db = &MockDB{}
+
+	r, _ := http.NewRequest("GET", "/courses/1", nil)
+	vars := map[string]string{
+		"id": "1",
+	}
+
+	r = mux.SetURLVars(r, vars)
+
+	w := httptest.NewRecorder()
+
+	app.GetCourse(w, r)
+	if w.Code != 200 {
+		t.Errorf("Result was incorrect")
+	}
+}
+
+func TestGetCourseNotFound(t *testing.T) {
+	app := internal.App{}
+	app.Initialize(
+		"postgres",
+		"1234",
+		"ingsoft2")
+
+	app.Db = &MockDB{}
+
+	r, _ := http.NewRequest("GET", "/courses/100", nil)
+	vars := map[string]string{
+		"id": "100",
+	}
+
+	r = mux.SetURLVars(r, vars)
+
+	w := httptest.NewRecorder()
+
+	app.GetCourse(w, r)
+	if w.Code == 404 {
 		t.Errorf("Result was incorrect")
 	}
 }
