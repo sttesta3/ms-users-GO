@@ -11,6 +11,7 @@ type DataBaseService interface {
 	InsertCourse(c Course) (int, error)
 	GetCourses() ([]Course, error)
 	GetCourse(id int) (Course, error)
+	DeleteCourse(id int) error
 }
 
 type PostgresService struct {
@@ -71,4 +72,15 @@ func (self *PostgresService) GetCourse(id int) (Course, error) {
 		course.Id = &intId
 	}
 	return course, err
+}
+
+func (self *PostgresService) DeleteCourse(id int) error {
+	_, err := self.GetCourse(id)
+	if err != nil {
+		return err
+	}
+
+	query := "DELETE FROM courses where id = $1"
+	self.Exec(query, id)
+	return nil
 }

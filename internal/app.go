@@ -39,6 +39,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/courses", a.CreateCourse).Methods("POST")
 	a.Router.HandleFunc("/courses", a.GetCourses).Methods("GET")
 	a.Router.HandleFunc("/courses/{id}", a.GetCourse).Methods("GET")
+	a.Router.HandleFunc("/courses/{id}", a.DeleteCourse).Methods("DELETE")
 }
 
 func (a *App) internalServerError(writer http.ResponseWriter) {
@@ -71,6 +72,9 @@ func (a *App) getCourses() ([]Course, error) {
 
 func (a *App) getCourse(id int) (Course, error) {
 	return a.Db.GetCourse(id)
+}
+func (a *App) deleteCourse(id int) error {
+	return a.Db.DeleteCourse(id)
 }
 
 func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
@@ -125,7 +129,6 @@ func (a *App) GetCourses(writer http.ResponseWriter, request *http.Request) {
 func (a *App) GetCourse(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == http.MethodGet {
 		courseIdStr := mux.Vars(request)["id"]
-		fmt.Println("Course id Str: ", courseIdStr)
 		courseId, err := strconv.Atoi(courseIdStr)
 		if err != nil {
 			http.Error(writer, err.Error(), 400)
@@ -145,5 +148,28 @@ func (a *App) GetCourse(writer http.ResponseWriter, request *http.Request) {
 		json.NewEncoder(writer).Encode(map[string]Course{
 			"data": course,
 		})
+	}
+}
+
+func (a *App) DeleteCourse(writer http.ResponseWriter, request *http.Request) {
+	if request.Method == http.MethodDelete {
+		courseIdStr := mux.Vars(request)["id"]
+		courseId, err := strconv.Atoi(courseIdStr)
+		if err != nil {
+			http.Error(writer, err.Error(), 400)
+			return
+		}
+		err = a.deleteCourse(courseId)
+		if err != nil {
+			errResponse := ErrorResponse{
+				Status:      404,
+				Title:       "Course not found",
+				Description: "No se encontró el curso especificado",
+			}
+			json.NewEncoder(writer).Encode(errResponse)
+			return
+		}
+		writer.WriteHeader(204)
+		json.NewEncoder(writer).Encode("Course deleted succesfully")
 	}
 }
