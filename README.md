@@ -10,5 +10,9 @@ La solución
 
 ## Testeo
 
+```
+go test -v ./...
+```
+
 ## Instrucciones de ejecución
 
