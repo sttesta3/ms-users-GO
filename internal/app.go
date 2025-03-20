@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -16,8 +17,13 @@ type App struct {
 }
 
 func (a *App) Initialize(user string, password string, dbname string) {
+	host := os.Getenv("POSTGRES_HOST")
+	if host == "" {
+		host = "localhost"
+	}
 	connectionString := fmt.Sprintf(
-		"user=%s password=%s dbname=%s sslmode=disable",
+		"host=%s user=%s password=%s dbname=%s sslmode=disable",
+		host,
 		user,
 		password,
 		dbname,
@@ -73,6 +79,7 @@ func (a *App) getCourses() ([]Course, error) {
 func (a *App) getCourse(id int) (Course, error) {
 	return a.Db.GetCourse(id)
 }
+
 func (a *App) deleteCourse(id int) error {
 	return a.Db.DeleteCourse(id)
 }
