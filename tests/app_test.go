@@ -7,6 +7,7 @@ import (
 	"ing2-tp1/internal"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -29,6 +30,13 @@ func (mockDb *MockDB) GetCourse(num int) (internal.Course, error) {
 	return internal.Course{}, nil
 }
 
+func (mockDb *MockDB) DeleteCourse(num int) error {
+	if num == 1 {
+		return nil
+	}
+	return fmt.Errorf("error")
+}
+
 func TestPostCoursesOK(t *testing.T) {
 	course := internal.Course{
 		Title:       "a",
@@ -37,9 +45,10 @@ func TestPostCoursesOK(t *testing.T) {
 	jsonCourse, _ := json.Marshal(course)
 	app := internal.App{}
 	app.Initialize(
-		"postgres",
-		"1234",
-		"ingsoft2")
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 
 	app.Db = &MockDB{}
 
@@ -57,9 +66,10 @@ func TestPostCoursesSinInformacion(t *testing.T) {
 	jsonCourse, _ := json.Marshal(course)
 	app := internal.App{}
 	app.Initialize(
-		"postgres",
-		"1234",
-		"ingsoft2")
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 
 	app.Db = &MockDB{}
 
@@ -75,9 +85,10 @@ func TestPostCoursesSinInformacion(t *testing.T) {
 func TestGetCourses(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		"postgres",
-		"1234",
-		"ingsoft2")
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 
 	app.Db = &MockDB{}
 
@@ -93,9 +104,10 @@ func TestGetCourses(t *testing.T) {
 func TestGetCourse(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		"postgres",
-		"1234",
-		"ingsoft2")
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 
 	app.Db = &MockDB{}
 
@@ -117,9 +129,10 @@ func TestGetCourse(t *testing.T) {
 func TestGetCourseNotFound(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		"postgres",
-		"1234",
-		"ingsoft2")
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 
 	app.Db = &MockDB{}
 
@@ -133,7 +146,57 @@ func TestGetCourseNotFound(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	app.GetCourse(w, r)
-	if w.Code == 404 {
+	if w.Code != 404 {
+		t.Errorf("Result was incorrect")
+	}
+}
+
+func TestDeleteCourse(t *testing.T) {
+	app := internal.App{}
+	app.Initialize(
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
+
+	app.Db = &MockDB{}
+
+	r, _ := http.NewRequest("DELETE", "/courses/1", nil)
+	vars := map[string]string{
+		"id": "1",
+	}
+
+	r = mux.SetURLVars(r, vars)
+
+	w := httptest.NewRecorder()
+
+	app.DeleteCourse(w, r)
+	if w.Code != 204 {
+		t.Errorf("Result was incorrect")
+	}
+}
+
+func TestDeleteCourseMissingCourse(t *testing.T) {
+	app := internal.App{}
+	app.Initialize(
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
+
+	app.Db = &MockDB{}
+
+	r, _ := http.NewRequest("DELETE", "/courses/10", nil)
+	vars := map[string]string{
+		"id": "10",
+	}
+
+	r = mux.SetURLVars(r, vars)
+
+	w := httptest.NewRecorder()
+
+	app.DeleteCourse(w, r)
+	if w.Code != 404 {
 		t.Errorf("Result was incorrect")
 	}
 }
