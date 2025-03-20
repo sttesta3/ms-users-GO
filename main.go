@@ -11,10 +11,11 @@ func main() {
 	if serverAddr == "" {
 		serverAddr = "localhost:8000"
 	}
-	
+
 	a.Initialize(
-		"postgres",
-		"1234",
-		"ingsoft2")
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PWD"),
+		os.Getenv("POSTGRES_DB"),
+	)
 	a.Run(serverAddr)
 }

@@ -53,6 +53,7 @@ func (a *App) internalServerError(writer http.ResponseWriter) {
 	errResponse := ErrorResponse{
 		Status: 500,
 		Title:  "Internal server error",
+		Description:  "The server was unable to complete your request",
 	}
 	json.NewEncoder(writer).Encode(errResponse)
 	return
@@ -102,13 +103,15 @@ func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
 		}
 
 		if err != nil {
-			http.Error(writer, err.Error(), http.StatusInternalServerError)
+			a.internalServerError(writer)
+			fmt.Println(err.Error())
 			return
 		}
 
 		id, err := a.insertCourse(c)
 		if err != nil {
-			http.Error(writer, err.Error(), http.StatusInternalServerError)
+			a.internalServerError(writer)
+			fmt.Println(err.Error())
 			return
 		}
 		c.Id = &id
@@ -123,7 +126,8 @@ func (a *App) GetCourses(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == http.MethodGet {
 		courses, err := a.getCourses()
 		if err != nil {
-			http.Error(writer, err.Error(), http.StatusInternalServerError)
+			a.internalServerError(writer)
+			fmt.Println(err.Error())
 			return
 		}
 		writer.WriteHeader(200)
@@ -148,6 +152,7 @@ func (a *App) GetCourse(writer http.ResponseWriter, request *http.Request) {
 				Title:       "Course not found",
 				Description: "No se encontró el curso especificado",
 			}
+			writer.WriteHeader(404)
 			json.NewEncoder(writer).Encode(errResponse)
 			return
 		}
@@ -173,6 +178,7 @@ func (a *App) DeleteCourse(writer http.ResponseWriter, request *http.Request) {
 				Title:       "Course not found",
 				Description: "No se encontró el curso especificado",
 			}
+			writer.WriteHeader(404)
 			json.NewEncoder(writer).Encode(errResponse)
 			return
 		}
