@@ -1,9 +1,10 @@
 # Tabla de contenidos
-1. [Solucion](#solucion)
-2. [Desafíos](#desafios)
+1. [Solucion](#solución)
+2. [Desafíos](#desafíos)
 3. [Requisitos](#requisitos)
 4. [Testeo](#testeo)
-5. [Instrucciones de ejecución](#instrucciones-de-ejecucion)
+5. [Instrucciones de ejecución](#instrucciones-de-ejecución)
+6. [Base de Datos](#y-la-base-de-datos)
 
 ## Solución
 
@@ -34,6 +35,6 @@ Para levantar el proyecto, solo se debe correr el siguiente comando en el direct
 docker compose up -d --build
 ```
 
-#### Y la base de datos?
+### Y la base de datos?
 
 La base de datos no es necesario levantarla aparte, ya que el docker-compose ya se encarga de eso. Además, el repositorio cuenta con un archivo `init.sql` que se ejecuta al iniciar el servicio y crea las tablas necesarias para correr (solo es una, la tabla `courses`).
