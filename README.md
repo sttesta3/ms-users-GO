@@ -12,7 +12,7 @@ La solución planteada está desarrollada en **go**, utilizando la librería *go
 
 ## Desafíos
 
-El principal desafío del proyecto fue crear una API pequeña sin dejar de lado la posibilidad de que deba crecer en em futuro y, en consecuencia, desarrollar codigo escalable y extensible. 
+El principal desafío del proyecto fue crear una API pequeña sin dejar de lado la posibilidad de que deba crecer en un futuro y, en consecuencia, desarrollar codigo escalable y extensible. 
 
 ## Requisitos
 
