@@ -20,7 +20,7 @@ El proyecto se puede correr enteramente desde docker. Por lo tanto, el único re
 
 ## Testeo
 
-Para los tests se utilizó la biblioteca nativa de testeo de **go**, [*testing*](https://pkg.go.dev/testing).
+Para los tests se utilizó la biblioteca nativa de testeo de **go**, [testing](https://pkg.go.dev/testing).
 
 Para correr los tests, se puede ejecutar el siguiente comando desde la raíz del proyecto:
 
