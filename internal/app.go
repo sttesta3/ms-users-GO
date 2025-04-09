@@ -17,22 +17,21 @@ type App struct {
 }
 
 func (a *App) Initialize(user string, password string, dbname string) {
-	host := os.Getenv("POSTGRES_HOST")
-	if host == "" {
-		host = "localhost"
+	host := os.Getenv("DATABASE_HOST")
+	if host != "" {
+		connectionString := fmt.Sprintf(
+			"host=%s user=%s password=%s dbname=%s sslmode=disable",
+			host,
+			user,
+			password,
+			dbname,
+		)
+		a.Db = NewDB("postgres", connectionString)
+	
+		a.Router = mux.NewRouter()
+	
+		a.initializeRoutes()
 	}
-	connectionString := fmt.Sprintf(
-		"host=%s user=%s password=%s dbname=%s sslmode=disable",
-		host,
-		user,
-		password,
-		dbname,
-	)
-	a.Db = NewDB("postgres", connectionString)
-
-	a.Router = mux.NewRouter()
-
-	a.initializeRoutes()
 }
 
 func (a *App) Run(s string) {

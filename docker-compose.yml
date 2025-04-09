@@ -1,25 +1,27 @@
 version: "3.8"
 
 services:
-  db:
-    image: postgres:latest
+  db:    
+    env_file: ".env.example"
+    image: mongo:latest
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: ingsoft2
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
+      MONGO_INITDB_DATABASE: "${MONGO_DB}"
     ports:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   tp1:
+    env_file: ".env.example"
     build: .
     depends_on:
       - db
     environment:
-      POSTGRES_HOST: db
-      POSTGRES_USER: postgres
+      DATABASE_HOST: db
+      MONGO_USER: postgres
       POSTGRES_PWD: 1234
       POSTGRES_DB: ingsoft2
       SERVER_ADDRESS: 0.0.0.0:8000

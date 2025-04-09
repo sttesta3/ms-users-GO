@@ -8,14 +8,12 @@ import (
 func main() {
 	a := internal.App{}
 	serverAddr := os.Getenv("SERVER_ADDRESS")
-	if serverAddr == "" {
-		serverAddr = "localhost:8000"
+	if serverAddr != "" {	// Solo si pude obtener mi direccion hace algo 
+		a.Initialize(
+			os.Getenv("MONGO_USER"),
+			os.Getenv("MONGO_PASSWORD"),
+			os.Getenv("MONGO_DB"),
+		)
+		a.Run(serverAddr)
 	}
-
-	a.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
-	)
-	a.Run(serverAddr)
 }
