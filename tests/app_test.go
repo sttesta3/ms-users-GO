@@ -45,9 +45,9 @@ func TestPostCoursesOK(t *testing.T) {
 	jsonCourse, _ := json.Marshal(course)
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}
@@ -66,9 +66,9 @@ func TestPostCoursesSinInformacion(t *testing.T) {
 	jsonCourse, _ := json.Marshal(course)
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}
@@ -85,9 +85,9 @@ func TestPostCoursesSinInformacion(t *testing.T) {
 func TestGetCourses(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}
@@ -104,9 +104,9 @@ func TestGetCourses(t *testing.T) {
 func TestGetCourse(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}
@@ -129,9 +129,9 @@ func TestGetCourse(t *testing.T) {
 func TestGetCourseNotFound(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}
@@ -154,9 +154,9 @@ func TestGetCourseNotFound(t *testing.T) {
 func TestDeleteCourse(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}
@@ -179,9 +179,9 @@ func TestDeleteCourse(t *testing.T) {
 func TestDeleteCourseMissingCourse(t *testing.T) {
 	app := internal.App{}
 	app.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("MONGO_DB"),
 	)
 
 	app.Db = &MockDB{}

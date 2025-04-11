@@ -6,16 +6,12 @@ import (
 )
 
 func main() {
-	a := internal.App{}
-	serverAddr := os.Getenv("SERVER_ADDRESS")
-	if serverAddr == "" {
-		serverAddr = "localhost:8000"
-	}
-
-	a.Initialize(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PWD"),
-		os.Getenv("POSTGRES_DB"),
+	app := internal.Initialize(
+		os.Getenv("MONGO_USER"),
+		os.Getenv("MONGO_PASSWORD"),
+		os.Getenv("DATABASE_HOST"),
+		os.Getenv("DATABASE_PORT"),
+		os.Getenv("MONGO_DB"),
 	)
-	a.Run(serverAddr)
+	app.Run(os.Getenv("HOST"), os.Getenv("PORT"))
 }
