@@ -5,38 +5,41 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
 
 type App struct {
 	Router *mux.Router
-	Db     DataBaseService
+	Db     CourseRepository
 }
 
-func (a *App) Initialize(user string, password string, dbname string) {
-	host := os.Getenv("DATABASE_HOST")
-	if host != "" {
-		connectionString := fmt.Sprintf(
-			"host=%s user=%s password=%s dbname=%s sslmode=disable",
-			host,
-			user,
-			password,
-			dbname,
-		)
-		a.Db = NewDB("postgres", connectionString)
+func Initialize(user string, password string, db_host string, db_port string, db_name string) *App {
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s?authSource=admin",
+		user,
+		password,
+		db_host,
+		db_port,
+		db_name,
+	)	
+
+	a := &App{}
+	a.Db = NewDB(uri)
 	
-		a.Router = mux.NewRouter()
+	a.Router = mux.NewRouter()
 	
-		a.initializeRoutes()
-	}
+	a.initializeRoutes()
+
+	return a
 }
 
-func (a *App) Run(s string) {
-	fmt.Println("Starting server on " + s)
-	log.Fatal(http.ListenAndServe(s, a.Router))
+func (a *App) Run(host string, port string) {
+	serverAddr := fmt.Sprintf("%s:%s",
+		host,
+		port,
+	)
+	fmt.Println("Starting server on " + serverAddr)
+	log.Fatal(http.ListenAndServe(serverAddr, a.Router))
 }
 
 func (a *App) initializeRoutes() {
@@ -68,7 +71,7 @@ func headers(next http.Handler) http.Handler {
 	})
 }
 
-func (a *App) insertCourse(c Course) (int, error) {
+func (a *App) insertCourse(c Course) (string, error) {
 	return a.Db.InsertCourse(c)
 }
 
@@ -76,11 +79,11 @@ func (a *App) getCourses() ([]Course, error) {
 	return a.Db.GetCourses()
 }
 
-func (a *App) getCourse(id int) (Course, error) {
+func (a *App) getCourse(id string) (Course, error) {
 	return a.Db.GetCourse(id)
 }
 
-func (a *App) deleteCourse(id int) error {
+func (a *App) deleteCourse(id string) error {
 	return a.Db.DeleteCourse(id)
 }
 
@@ -113,7 +116,7 @@ func (a *App) CreateCourse(writer http.ResponseWriter, request *http.Request) {
 			fmt.Println(err.Error())
 			return
 		}
-		c.Id = &id
+		c.Id = id
 		writer.WriteHeader(201)
 		json.NewEncoder(writer).Encode(map[string]Course{
 			"data": c,
@@ -138,12 +141,7 @@ func (a *App) GetCourses(writer http.ResponseWriter, request *http.Request) {
 
 func (a *App) GetCourse(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == http.MethodGet {
-		courseIdStr := mux.Vars(request)["id"]
-		courseId, err := strconv.Atoi(courseIdStr)
-		if err != nil {
-			http.Error(writer, err.Error(), 400)
-			return
-		}
+		courseId := mux.Vars(request)["id"]
 		course, err := a.getCourse(courseId)
 		if err != nil {
 			errResponse := ErrorResponse{
@@ -164,13 +162,8 @@ func (a *App) GetCourse(writer http.ResponseWriter, request *http.Request) {
 
 func (a *App) DeleteCourse(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == http.MethodDelete {
-		courseIdStr := mux.Vars(request)["id"]
-		courseId, err := strconv.Atoi(courseIdStr)
-		if err != nil {
-			http.Error(writer, err.Error(), 400)
-			return
-		}
-		err = a.deleteCourse(courseId)
+		courseId := mux.Vars(request)["id"]
+		err := a.deleteCourse(courseId)
 		if err != nil {
 			errResponse := ErrorResponse{
 				Status:      404,

@@ -2,28 +2,50 @@ version: "3.8"
 
 services:
   db:    
+    image: mongo:4.4
     env_file: ".env.example"
-    image: mongo:latest
     restart: always
+    container_name: "${DATABASE_HOST}"
+    hostname: "${DATABASE_HOST}"
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
       MONGO_INITDB_DATABASE: "${MONGO_DB}"
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      ms-users:
+    healthcheck:
+      test: ["CMD","mongo"]
+      interval: 2s
+      retries: 5
+      start_period: 2s      
+      timeout: 2s
+#    volumes:
+#      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  tp1:
+  ms-users:
     env_file: ".env.example"
     build: .
+    image: "${HOST}"
+    container_name: "${HOST}"
+    container_name: "${HOST}"
+    hostname: "${HOST}"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      DATABASE_HOST: db
-      MONGO_USER: postgres
-      POSTGRES_PWD: 1234
-      POSTGRES_DB: ingsoft2
-      SERVER_ADDRESS: 0.0.0.0:8000
+      DATABASE_HOST: "${DATABASE_HOST}"
+      DATABASE_PORT: "${DATABASE_PORT}"
+      MONGO_USER: "${MONGO_USER}"
+      MONGO_PASSWORD: "${MONGO_PASSWORD}"
+      MONGO_DB: "${MONGO_DB}"
+      HOST: "${HOST}"
+      PORT: "${PORT}"
     ports:
-      - "8000:8000"
+      - "${PORT}:${PORT}"
+    networks:
+      ms-users:
+
+networks:
+  ms-users:
+    name: ms-users-net
+    driver: bridge
